@@ -3,13 +3,14 @@ services:
   db:
     image: postgres:latest
     environment:
-      POSTGRES_DB: ${DB_NAME:-verit4s-db}
-      POSTGRES_USER: ${DB_USER:-root}
-      POSTGRES_PASSWORD: ${DB_HOST:-password}
+      POSTGRES_DB: "${POSTGRES_DB}"
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pgdata:/var/lib/postgresql/data
+    command: ["postgres", "-c", "log_statement=all"]
 
   app:
     build: .
@@ -21,7 +22,7 @@ services:
     depends_on:
       - db
     environment:
-      DATABASE_URL: ${DATABASE_URL}
+      DATABASE_URL: "${DATABASE_URL}"
 
 volumes:
-  postgres_data:
+  pgdata:

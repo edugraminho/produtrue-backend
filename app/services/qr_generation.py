@@ -1,5 +1,6 @@
 import qrcode
 import requests
+import secrets
 
 
 from pathlib import Path, PurePath
@@ -16,46 +17,38 @@ CURRENT_DAY = datetime.now().strftime("%d/%m")
 
 
 class QrCode:
-    def __init__(self) -> None:
-        pass
-
-    def generate(self, version: int, quantity: int, box_size: int, border: int):
+    def generate_qrcode(
+        self,
+        company: str,
+        product: str,
+        version: int = 1,
+        box_size: int = 5,
+        border: int = 10,
+    ):
         """Cria um objeto QRCode
         Args:
             version (int): versoes de 1 a 40
-            quantity (int): _description_
-            box_size (_type_): _description_
-            border (_type_): _description_
+            box_size (_type_):
+            border (_type_):
+            data (dict): Dados a serem codificados no QRCode
         """
 
-        result: list = []
-        for _ in range(quantity):
-            qrcode_obj = qrcode.QRCode(
-                version=version,
-                error_correction=qrcode.constants.ERROR_CORRECT_H,
-                box_size=box_size,
-                border=border,
-            )
+        # Gerar um token aleatório
+        token = secrets.token_urlsafe(16)
 
-            result.append(qrcode_obj)
+        url = f"http://localhost/{company}/{product}/{token}"
 
-        return result
+        qr = qrcode.QRCode(
+            version=version,
+            error_correction=qrcode.constants.ERROR_CORRECT_H,
+            box_size=box_size,
+            border=border,
+        )
 
-    def add_link(self, list_qrcodes: list, url: str):
-        """Adiciona o link ao QRCode
-        Args:
-            list_qrcodes (list): _description_
-        """
-        # TODO cada qrcode deve ter uma rota diferente com seu token
-        result: list = []
+        qr.add_data(url)
+        qr.make(fit=True)
 
-        for qrc in list_qrcodes:
-            qrc.add_data(url)
-            qrc.make(fit=True)
-
-            result.append(qrc)
-
-        return result
+        return qr, token, url
 
     def save_qr_image(
         self, list_qrcodes: list, fill_color: str = "black", back_color: str = "white"
@@ -75,11 +68,11 @@ class QrCode:
             imagem_qrcode.save(f"{DATA_DIRECTORY}/qrcode.png")
 
 
-qr = QrCode()
-listqr = qr.generate(1, 5, 10, 4)
+# qr = QrCode()
+# listqr = qr.generate(1, 5, 10, 4)
 
-listlink = qr.add_link(listqr, "blabla.com")
+# listlink = qr.add_link(listqr, "blabla.com")
 
-qr.save_qr_image(
-    listlink,
-)
+# qr.save_qr_image(
+#     listlink,
+# )

@@ -4,14 +4,14 @@ from sqlalchemy.orm import Session
 from .database.db_connection import get_db
 
 from .application.userService import UserService
-from .application.tweetService import TweetService
 from .application.companyService import CompanyService
 from .application.productService import ProductService
+from .application.batchService import BatchService
 
 from .infrastructure.userRepository import UserRepository
-from .infrastructure.tweetRepository import TweetRepository
 from .infrastructure.companyRepository import CompanyRepository
 from .infrastructure.productRepository import ProductRepository
+from .infrastructure.batchRepository import BatchRepository
 
 app = FastAPI()
 
@@ -38,19 +38,6 @@ def get_user(user_id: int, q: Union[str, None] = None, db: Session = Depends(get
     user_service = UserService(UserRepository(db))
     user_info = user_service.get_tweet(user_id, q)
     return {"payload": user_info, "item_id": user_id, "q": q}
-
-
-@app.post("/tweets/add")
-def post_tweet(tweet_data: dict, db: Session = Depends(get_db)):
-    tweet_service = TweetService(TweetRepository(db))
-    return tweet_service.post_tweet(tweet_data)
-
-
-@app.get("/tweets/{tweet_id}")
-def get_tweet(tweet_id: int, q: Union[str, None] = None, db: Session = Depends(get_db)):
-    tweet_service = TweetService(TweetRepository(db))
-    tweet_info = tweet_service.get_tweet(tweet_id, q)
-    return {"payload": tweet_info, "item_id": tweet_id, "q": q}
 
 
 # Company API
@@ -96,3 +83,14 @@ def get_product(
     product_info = product_service.get_product(product_name, q)
     return {"payload": product_info, "name": product_name, "q": q}
 
+
+# Batch Product API
+@app.post("/batch/add")
+def post_batch(data: dict, db: Session = Depends(get_db)):
+
+    batch_service = BatchService(BatchRepository(db))
+    response = batch_service.generate_batch_products(
+        data=data, ProductSessionDb=ProductRepository(db)
+    )
+
+    return response
