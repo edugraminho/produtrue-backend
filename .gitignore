@@ -4,11 +4,6 @@ docker-stack.yml
 
 __pycache__
 
-#front
-.DS_Store
-node_modules
-/dist
-
 # local env files
 .env
 .env.local
@@ -27,3 +22,5 @@ yarn-error.log*
 *.njsproj
 *.sln
 *.sw*
+
+/data

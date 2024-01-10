@@ -9,15 +9,22 @@ class BatchRepository:
     def save(self, batch_data: dict) -> Batch:
 
         existing_company = (
-            self.db.query(Company).filter_by(name=batch_data["company"]).first()
+            self.db.query(Company).filter_by(id=batch_data["company_id"]).first()
         )
 
         if not existing_company:
             return "Company not found"
 
         db_batch = Batch(**{
-            "company": existing_company,
+            "name": batch_data["name"],
             "quantity": batch_data["quantity"],
+            "production_date": "01/01/2024",
+            "level": batch_data["level"],
+            "status": True,
+            "qrcode_settings": batch_data["qrcode_settings"],
+            "notes": batch_data["notes"],
+            "company_id": batch_data["company_id"],
+            "company": existing_company,
         })
 
         self.db.add(db_batch)

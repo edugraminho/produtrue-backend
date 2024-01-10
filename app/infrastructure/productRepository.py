@@ -1,6 +1,9 @@
-from ..database.models import Product, Company, Batch
+from sqlalchemy import func
 from sqlalchemy.orm import Session
-
+from ..database.models import Product, Company, Batch
+from ..services.qr_generation import QrCode
+from datetime import datetime
+import base64
 
 class ProductRepository:
     def __init__(self, db: Session):
@@ -8,46 +11,74 @@ class ProductRepository:
 
     def save(self, product_data: dict) -> Product:
 
-        existing_company = (
-            self.db.query(Company).filter_by(name=product_data["company"]).first()
+        company_data = (
+            self.db.query(Company).filter_by(id=product_data["company_id"]).first()
         )
-
-        if not existing_company:
+        if not company_data:
             return "Company not found"
 
 
-        existing_batch = (
+        batch_data = (
             self.db.query(Batch).filter_by(id=product_data["batch_id"]).first()
         )
-
-        if not existing_batch:
+        if not batch_data:
             return "Batch not found"
         
 
-        for q in range(data["quantity"]):
-            qrcode, token, url = QrCode.generate_qrcode(
-                data["company"].lower(),
-                data["product"]["name"].lower(),
-                data["qrcode_settings"]["version"],
-                data["qrcode_settings"]["box_size"],
-                data["qrcode_settings"]["border"],
-            )
+        # Check how many products have already been inserted
+        existing_products_count = (
+            self.db.query(func.count(Product.id))
+            .filter_by(batch_id=batch_data.id)
+            .scalar()
+        )
 
+        remaining_quantity = batch_data.quantity - existing_products_count
+
+        product_list = []
+
+        for i in range(remaining_quantity):
+            qrcode, token, url, qrcode_image = QrCode().generate_qrcode(
+                company_data.trade_name,
+                product_data["name"],
+                batch_data.qrcode_settings,
+            )
+            # TODO qrcode 
+
+            manufacturing_date = datetime.strptime(product_data.get("manufacturing_date", None), "%d/%m/%Y").strftime("%Y-%m-%d")
+            expiration_date = datetime.strptime(product_data.get("expiration_date", None), "%d/%m/%Y").strftime("%Y-%m-%d")
 
             db_product = Product(**{
-                "token" : product_data["token"],
-                "name" : product_data["name"],
-                "qrcode" : product_data["token"], # TODO Pegar o qrcode gerado
-                "description" : product_data["description"],
-                "company" : existing_company,
-                "batch" : existing_batch,
+                "token": token,
+                "qrcode": token,
+                "qrcode_image": qrcode_image,
+                "name": product_data["name"],
+                "status": True,
+                "description": product_data["description"],
+                "url_route": url,
+                "price": product_data.get("price", None),
+                "stock_quantity": product_data.get("stock_quantity", None),
+                "manufacturing_date": manufacturing_date,
+                "nutritional_info": product_data.get("nutritional_info", None),
+                "expiration_date": expiration_date,
+                "certification": product_data.get("certification", None),
+                "batch": batch_data,
+                "company": company_data,
             })
 
-            self.db.add(db_product)
+            product_list.append(db_product)
 
+
+        self.db.add_all(product_list)
         self.db.commit()
-        self.db.refresh(db_product)
-        return db_product
+
+        return {"Status": "OK", "Product": {
+            "inserted_products": remaining_quantity,
+            "name": product_data["name"],
+            "batch_id": batch_data.id,
+            "batch_name": batch_data.name,
+            "company_id": company_data.id,
+            "company_name": company_data.name,
+        }}
 
     def get_product(self, product_name) -> Product:
         product = self.db.query(Product).filter(Product.name == product_name).first()

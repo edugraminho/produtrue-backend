@@ -11,16 +11,7 @@ class ProductService:
         return self.product_repository.get_product(name)
 
     def create_product(self, product_data: dict) -> Product:
-        data = {
-            "token": token,
-            "qrcode": qrcode,
-            "name": product_data["name"],
-            "description": product_data["description"],
-            "company": product_data["company"],
-            "url_route": url,
-        }
-
-        return self.product_repository.save(data)
+        return self.product_repository.save(product_data)
 
     def update_product(self, data: dict, product_id: int) -> Product:
         return self.product_repository.update(data, product_id)

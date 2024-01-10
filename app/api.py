@@ -43,6 +43,19 @@ def get_user(user_id: int, q: Union[str, None] = None, db: Session = Depends(get
 # Company API
 @app.post("/company/add")
 def post_company(company_data: dict, db: Session = Depends(get_db)):
+    """
+    Endpoint to add a new company.
+    JSON:
+        {
+            "trade_name": "Company LTDA",
+            "legal_name": "Company",
+            "cnpj": "12.345.678/0001-11",
+            "address": "Company address",
+            "contact_email": "email@company.com",
+            "phone_number": "123456789",
+            "website": "http://www.company.com"
+        }
+    """
     company_service = CompanyService(CompanyRepository(db))
     return company_service.create_company(company_data)
 
@@ -65,6 +78,22 @@ def get_company(
 # Product API
 @app.post("/product/add")
 def post_product(product_data: dict, db: Session = Depends(get_db)):
+    """
+    Endpoint to add a new product.
+    JSON:
+        {
+            "name": "Product Name",
+            "description": "Product description",
+            "price": 19.99,
+            "stock_quantity": 100,
+            "manufacturing_date": "2024-01-06T12:00:00",
+            "expiration_date": "2025-01-06T12:00:00",
+            "nutritional_info": "Nutritional information",
+            "certification": "Product certification",
+            "batch_id": 1,
+            "company_id": 1
+        }
+    """
     product_service = ProductService(ProductRepository(db))
     return product_service.create_product(product_data)
 
@@ -87,10 +116,25 @@ def get_product(
 # Batch Product API
 @app.post("/batch/add")
 def post_batch(data: dict, db: Session = Depends(get_db)):
+    """
+    Endpoint to add a new batch and generate associated products.
+
+    JSON:
+        {
+            "name": "Batch Name",
+            "quantity": 100,
+            "level": 1,
+            "qrcode_settings": {
+                "version": 1,
+                "box_size": 5,
+                "border": 10,
+                "fill_color": "white",
+                "back_color": "black"
+            },
+            "notes": "Additional notes",
+            "company_id": 1
+        }
+    """
 
     batch_service = BatchService(BatchRepository(db))
-    response = batch_service.generate_batch_products(
-        data=data, ProductSessionDb=ProductRepository(db)
-    )
-
-    return response
+    return batch_service.generate_batch_products(data=data)

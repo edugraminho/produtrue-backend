@@ -1,19 +1,11 @@
 import qrcode
 import requests
 import secrets
-
-
-from pathlib import Path, PurePath
+from ..variables import ROOT, DATA_DIRECTORY, NOW, CURRENT_DAY
 import os
-from datetime import datetime, timedelta
-from enum import Enum
 
-
-# ====================== DIRETÓRIOS LOCAIS e DATAS ======================
-ROOT = Path(os.path.dirname(os.path.abspath(__file__))).parent
-DATA_DIRECTORY = os.path.join(ROOT, "data")
-NOW = datetime.now().strftime("%d/%m/%y %H:%M:%S")
-CURRENT_DAY = datetime.now().strftime("%d/%m")
+# from PIL import Image
+from io import BytesIO
 
 
 class QrCode:
@@ -21,58 +13,47 @@ class QrCode:
         self,
         company: str,
         product: str,
-        version: int = 1,
-        box_size: int = 5,
-        border: int = 10,
+        qrcode_settings: dict,
     ):
-        """Cria um objeto QRCode
-        Args:
-            version (int): versoes de 1 a 40
-            box_size (_type_):
-            border (_type_):
-            data (dict): Dados a serem codificados no QRCode
-        """
+        version = qrcode_settings.get("version", 1) #"version"] if qrcode_settings["version"] else 1
+        box_size = qrcode_settings.get("box_size", 5) 
+        border = qrcode_settings.get("border", 10)
+        fill_color = qrcode_settings.get("fill_color", "black")
+        back_color = qrcode_settings.get("back_color", "white")
 
-        # Gerar um token aleatório
-        token = secrets.token_urlsafe(16)
+        token = secrets.token_urlsafe(22)
 
+        company = str(company).replace(" ", "-").lower()
+        product = str(product).replace(" ", "-").lower()
         url = f"http://localhost/{company}/{product}/{token}"
 
-        qr = qrcode.QRCode(
+        qr_obj = qrcode.QRCode(
             version=version,
             error_correction=qrcode.constants.ERROR_CORRECT_H,
             box_size=box_size,
             border=border,
         )
 
-        qr.add_data(url)
-        qr.make(fit=True)
+        qr_obj.add_data(url)
+        qr_obj.make(fit=True)
 
-        return qr, token, url
+        # Gerar a imagem
+        qr_image = qr_obj.make_image(fill_color=fill_color, back_color=back_color)
 
-    def save_qr_image(
-        self, list_qrcodes: list, fill_color: str = "black", back_color: str = "white"
-    ):
-        """Cria uma imagem PIL (Python Imaging Library) do QRCode e
-            salva a imagem em um arquivo
-        Args:
-            list_qrcodes (list): _description_
-            fill_color (str): _description_
-            back_color (str): _description_
-        """
+        # Convertendo a imagem para bytes
+        image_bytes = self.get_image_bytes(qr_image)
 
-        for qrc in list_qrcodes:
-            imagem_qrcode = qrc.make_image(fill_color=fill_color, back_color=back_color)
+        # Salvar a imagem no diretório
+        # TODO: não será necessário no futuro
+        data_directory = f"{DATA_DIRECTORY}"
+        os.makedirs(data_directory, exist_ok=True)
+        image_url = f"{product}{token}"
+        # qr_image.save(os.path.join(data_directory, f"{image_url}.png"))
 
-            # Salva a imagem em um arquivo
-            imagem_qrcode.save(f"{DATA_DIRECTORY}/qrcode.png")
+        return qr_obj, token, url, image_bytes
 
-
-# qr = QrCode()
-# listqr = qr.generate(1, 5, 10, 4)
-
-# listlink = qr.add_link(listqr, "blabla.com")
-
-# qr.save_qr_image(
-#     listlink,
-# )
+    def get_image_bytes(self, image):
+        image_bytes = BytesIO()
+        image.save(image_bytes)
+        image_bytes.seek(0)
+        return image_bytes.getvalue()
