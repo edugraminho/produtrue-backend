@@ -77,8 +77,6 @@ class Product(Base):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     token = Column(String(255), unique=True, nullable=False)
-    qrcode = Column(String(255), unique=True, nullable=False)
-    qrcode_image = Column(LargeBinary, nullable=False)
     name = Column(String(255), nullable=False)
     status = Column(Boolean, nullable=False)
     description = Column(String(1000))
@@ -102,8 +100,6 @@ class Product(Base):
     def __init__(
         self,
         token,
-        qrcode,
-        qrcode_image,
         name,
         status,
         description,
@@ -118,8 +114,6 @@ class Product(Base):
         company,
     ):
         self.token = token
-        self.qrcode = qrcode
-        self.qrcode_image = qrcode_image
         self.name = name
         self.status = status
         self.description = description

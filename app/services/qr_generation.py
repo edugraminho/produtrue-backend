@@ -3,6 +3,8 @@ import requests
 import secrets
 from ..variables import ROOT, DATA_DIRECTORY, NOW, CURRENT_DAY
 import os
+import json
+import io
 
 # from PIL import Image
 from io import BytesIO
@@ -15,12 +17,14 @@ class QrCode:
         product: str,
         qrcode_settings: dict,
     ):
-        version = qrcode_settings.get("version", 1) #"version"] if qrcode_settings["version"] else 1
-        box_size = qrcode_settings.get("box_size", 5) 
+        version = qrcode_settings.get("version", 1)
+        box_size = qrcode_settings.get("box_size", 5)
         border = qrcode_settings.get("border", 10)
         fill_color = qrcode_settings.get("fill_color", "black")
         back_color = qrcode_settings.get("back_color", "white")
 
+
+        # TODO receber o token por parametro
         token = secrets.token_urlsafe(22)
 
         company = str(company).replace(" ", "-").lower()
@@ -36,6 +40,11 @@ class QrCode:
 
         qr_obj.add_data(url)
         qr_obj.make(fit=True)
+
+        # f = io.StringIO()
+        # qr_obj.print_ascii(out=f)
+        # f.seek(0)
+        # print(f.read())
 
         # Gerar a imagem
         qr_image = qr_obj.make_image(fill_color=fill_color, back_color=back_color)
