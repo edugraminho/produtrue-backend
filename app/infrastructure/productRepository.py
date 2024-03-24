@@ -38,6 +38,19 @@ class ProductRepository:
                 product_data["name"],
             )
 
+            qr_obj, tokenxx, urlxx, image_bytes = QrCode().generate_qrcode(
+                company_data.trade_name,
+                product_data["name"],
+                {
+                    "version": 1,
+                    "box_size": 5,
+                    "border": 10,
+                    "fill_color": "black",
+                    "back_color": "white",
+                },
+                token
+            )
+
             manufacturing_date = datetime.strptime(
                 product_data.get("manufacturing_date", None), "%d/%m/%Y"
             ).strftime("%Y-%m-%d")
@@ -80,8 +93,18 @@ class ProductRepository:
             },
         }
 
-    def get_product(self, product_name) -> Product:
-        product = self.db.query(Product).filter(Product.name == product_name).first()
+    def get_product(self, company, product_name, token) -> Product:
+        product = (
+            self.db.query(Product)
+            .filter(
+                # Product.name == product_name,
+                # Product.company == company,
+                Product.token
+                == token
+            )
+            .first()
+        )
+
         return product
 
     def update(self, product_data: dict, product_id: int) -> Product:

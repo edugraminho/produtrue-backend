@@ -1,5 +1,6 @@
 from typing import Union
 from fastapi import FastAPI, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 from .database.db_connection import get_db
 
@@ -14,6 +15,14 @@ from .infrastructure.productRepository import ProductRepository
 from .infrastructure.batchRepository import BatchRepository
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://192.168.15.5:5173"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST", "PUT", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/")
@@ -104,13 +113,38 @@ def update_product(product_id: int, product_data: dict, db: Session = Depends(ge
     return product_service.update_product(product_data, product_id)
 
 
-@app.get("/product/{product_name}")
+@app.get("/{company}/{product}/{token}")
 def get_product(
-    product_name: str, q: Union[str, None] = None, db: Session = Depends(get_db)
+    company: str,
+    product: str,
+    token: str,
+    q: Union[str, None] = None,
+    db: Session = Depends(get_db),
 ):
+    """
+    [
+        {
+            "id": 36,
+            "name": "Whey",
+            "description": "Whey description",
+            "price": 101.99,
+            "manufacturing_date": "2022-01-01T00:00:00",
+            "certification": "Product certification",
+            "batch_id": 5,
+            "token": "PCXqur1qihAd1iaJ1vqoby6D1yoq1g",
+            "status": true,
+            "url_route": "",
+            "stock_quantity": 100,
+            "expiration_date": "2030-12-31T00:00:00",
+            "company_id": 1
+        }
+    ]
+    """
     product_service = ProductService(ProductRepository(db))
-    product_info = product_service.get_product(product_name, q)
-    return {"payload": product_info, "name": product_name, "q": q}
+
+    product_info = product_service.get_product(company, product, token)
+
+    return {product_info}
 
 
 # Batch Product API
