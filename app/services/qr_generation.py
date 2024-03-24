@@ -16,6 +16,7 @@ class QrCode:
         company: str,
         product: str,
         qrcode_settings: dict,
+        token
     ):
         version = qrcode_settings.get("version", 1)
         box_size = qrcode_settings.get("box_size", 5)
@@ -24,12 +25,9 @@ class QrCode:
         back_color = qrcode_settings.get("back_color", "white")
 
 
-        # TODO receber o token por parametro
-        token = secrets.token_urlsafe(22)
-
         company = str(company).replace(" ", "-").lower()
         product = str(product).replace(" ", "-").lower()
-        url = f"http://localhost/{company}/{product}/{token}"
+        url = f"http://192.168.15.5:5173/{company}/{product}/{token}"
 
         qr_obj = qrcode.QRCode(
             version=version,
@@ -57,7 +55,7 @@ class QrCode:
         data_directory = f"{DATA_DIRECTORY}"
         os.makedirs(data_directory, exist_ok=True)
         image_url = f"{product}{token}"
-        # qr_image.save(os.path.join(data_directory, f"{image_url}.png"))
+        qr_image.save(os.path.join(data_directory, f"{image_url}.png"))
 
         return qr_obj, token, url, image_bytes
 
