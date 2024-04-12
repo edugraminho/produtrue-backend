@@ -48,7 +48,7 @@ class ProductRepository:
                     "fill_color": "black",
                     "back_color": "white",
                 },
-                token
+                token,
             )
 
             manufacturing_date = datetime.strptime(
@@ -94,16 +94,14 @@ class ProductRepository:
         }
 
     def get_product(self, company, product_name, token) -> Product:
-        product = (
-            self.db.query(Product)
-            .filter(
-                # Product.name == product_name,
-                # Product.company == company,
-                Product.token
-                == token
-            )
-            .first()
+        product = self.db.query(Product).filter(Product.token == token).first()
+
+        company = (
+            self.db.query(Company).filter(Company.id == product.company_id).first()
         )
+
+        product.company_name = company.trade_name
+        product.company_website = company.website
 
         return product
 
