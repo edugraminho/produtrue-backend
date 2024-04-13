@@ -24,3 +24,5 @@ yarn-error.log*
 *.sw*
 
 /data
+
+DOC.md
