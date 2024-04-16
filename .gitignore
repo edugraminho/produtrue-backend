@@ -26,3 +26,5 @@ yarn-error.log*
 /data
 
 DOC.md
+
+.env

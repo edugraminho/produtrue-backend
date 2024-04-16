@@ -27,7 +27,7 @@ class QrCode:
 
         company = str(company).replace(" ", "-").lower()
         product = str(product).replace(" ", "-").lower()
-        url = f"http://192.168.15.5:5173/{company}/{product}/{token}"
+        url = f"http://produtrue.com/{company}/{product}/{token}"
 
         qr_obj = qrcode.QRCode(
             version=version,
@@ -54,7 +54,7 @@ class QrCode:
         # TODO: não será necessário no futuro
         data_directory = f"{DATA_DIRECTORY}"
         os.makedirs(data_directory, exist_ok=True)
-        image_url = f"{product}{token}"
+        image_url = f"{company}{product}{token}"
         qr_image.save(os.path.join(data_directory, f"{image_url}.png"))
 
         return qr_obj, token, url, image_bytes
