@@ -18,14 +18,9 @@ app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://www.produtrue.com", 
-        "https://www.produtrue.com",
-        "http://www.produtrue.com.br",
-        "https://www.produtrue.com.br",
-    ],
+    allow_origins=["*"],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "PUT", "DELETE"],
+    allow_methods=["*"],
     allow_headers=["*"],
 )
 
@@ -112,7 +107,7 @@ def post_product(product_data: dict, db: Session = Depends(get_db)):
     return product_service.create_product(product_data)
 
 
-@app.put("/product/{product_id}")
+@app.patch("/product/{product_id}")
 def update_product(product_id: int, product_data: dict, db: Session = Depends(get_db)):
     product_service = ProductService(ProductRepository(db))
     return product_service.update_product(product_data, product_id)
@@ -140,6 +135,7 @@ def get_product(
             "status": true,
             "url_route": "",
             "stock_quantity": 100,
+            "views_count": 0,
             "expiration_date": "2030-12-31T00:00:00",
             "company_id": 1
         }

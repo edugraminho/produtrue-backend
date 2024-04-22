@@ -86,6 +86,7 @@ class Product(Base):
     manufacturing_date = Column(DateTime)
     expiration_date = Column(DateTime)
     certification = Column(String(100))
+    views_count = Column(Integer)
     batch_id = Column(Integer, ForeignKey("batch.id"))
     company_id = Column(Integer, ForeignKey("company.id"))
     # supplier_id = Column(Integer, ForeignKey("supplier.id"))

@@ -38,19 +38,6 @@ class ProductRepository:
                 product_data["name"],
             )
 
-            qr_obj, tokenxx, urlxx, image_bytes = QrCode().generate_qrcode(
-                company_data.trade_name,
-                product_data["name"],
-                {
-                    "version": 1,
-                    "box_size": 5,
-                    "border": 10,
-                    "fill_color": "black",
-                    "back_color": "white",
-                },
-                token,
-            )
-
             manufacturing_date = datetime.strptime(
                 product_data.get("manufacturing_date", None), "%d/%m/%Y"
             ).strftime("%Y-%m-%d")
@@ -71,6 +58,7 @@ class ProductRepository:
                     "nutritional_info": product_data.get("nutritional_info", None),
                     "expiration_date": expiration_date,
                     "certification": product_data.get("certification", None),
+                    "views_count": product_data.get("views_count", None),
                     "batch": batch_data,
                     "company": company_data,
                 }

@@ -27,7 +27,8 @@ class QrCode:
 
         company = str(company).replace(" ", "-").lower()
         product = str(product).replace(" ", "-").lower()
-        url = f"http://produtrue.com/{company}/{product}/{token}"
+        url = f"http://192.168.15.5:5173/{company}/{product}/{token}"
+        # url = f"http://produtrue.com/{company}/{product}/{token}"
 
         qr_obj = qrcode.QRCode(
             version=version,
