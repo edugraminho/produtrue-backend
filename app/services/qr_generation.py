@@ -1,7 +1,7 @@
 import qrcode
 import requests
 import secrets
-from ..variables import ROOT, DATA_DIRECTORY, NOW, CURRENT_DAY
+from ..variables import ROOT, DATA_DIRECTORY
 import os
 import json
 import io

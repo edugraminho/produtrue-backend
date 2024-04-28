@@ -99,6 +99,8 @@ def post_product(product_data: dict, db: Session = Depends(get_db)):
             "expiration_date": "2025-01-06T12:00:00",
             "nutritional_info": "Nutritional information",
             "certification": "Product certification",
+            "views_count": 0,
+            "viewing_date" : "2022-01-01T00:00:00",
             "batch_id": 1,
             "company_id": 1
         }
@@ -135,7 +137,6 @@ def get_product(
             "status": true,
             "url_route": "",
             "stock_quantity": 100,
-            "views_count": 0,
             "expiration_date": "2030-12-31T00:00:00",
             "company_id": 1
         }

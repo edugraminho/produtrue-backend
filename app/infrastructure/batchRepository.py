@@ -1,6 +1,8 @@
 from ..database.models import Batch, Company
 from sqlalchemy.orm import Session
-from ..variables import NOW
+from ..services.utils import convert_date_to_timestamp
+from ..variables import DATE_NOW
+
 
 class BatchRepository:
     def __init__(self, db: Session):
@@ -15,17 +17,23 @@ class BatchRepository:
         if not existing_company:
             return "Company not found"
 
-        db_batch = Batch(**{
-            "name": batch_data["name"],
-            "quantity": batch_data["quantity"],
-            "production_date": "01/01/2024",
-            "level": batch_data["level"],
-            "status": True,
-            "qrcode_settings": batch_data["qrcode_settings"],
-            "notes": batch_data["notes"],
-            "company_id": batch_data["company_id"],
-            "company": existing_company,
-        })
+        timestamp = convert_date_to_timestamp(batch_data.get("production_date", None))
+        timestamp_now = convert_date_to_timestamp(DATE_NOW)
+
+        db_batch = Batch(
+            **{
+                "name": batch_data.get("name", None),
+                "quantity": batch_data.get("quantity", None),
+                "production_date": timestamp,
+                "registration_date": timestamp_now,
+                "level": batch_data.get("level", None),
+                "status": True,
+                "qrcode_settings": batch_data.get("qrcode_settings", None),
+                "notes": batch_data.get("notes", None),
+                "company_id": batch_data.get("company_id", None),
+                "company": existing_company,
+            }
+        )
 
         self.db.add(db_batch)
         self.db.commit()
@@ -36,8 +44,7 @@ class BatchRepository:
         batch = self.db.query(Batch).filter(Batch.id == _id).first()
         return batch
 
-
-    def update(self, batch_data: dict, batch_id:int) -> Batch:
+    def update(self, batch_data: dict, batch_id: int) -> Batch:
         batch = self.db.query(Batch).filter(Batch.id == batch_id).first()
         if batch:
             for key, value in batch_data.items():
@@ -45,5 +52,4 @@ class BatchRepository:
             self.db.commit()
             self.db.refresh(batch)
             return batch
-        return None # type: ignore
-        
+        return None  # type: ignore

@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session
 from ..database.models import Product, Company, Batch
 from ..services.qr_generation import QrCode
 from ..services.token_generation import Token
-from datetime import datetime
-import base64
+from ..services.utils import convert_date_to_timestamp
 
 
 class ProductRepository:
@@ -38,12 +37,15 @@ class ProductRepository:
                 product_data["name"],
             )
 
-            manufacturing_date = datetime.strptime(
-                product_data.get("manufacturing_date", None), "%d/%m/%Y"
-            ).strftime("%Y-%m-%d")
-            expiration_date = datetime.strptime(
-                product_data.get("expiration_date", None), "%d/%m/%Y"
-            ).strftime("%Y-%m-%d")
+            manufacturing_timestamp = convert_date_to_timestamp(
+                product_data.get("manufacturing_date", None)
+            )
+            expiration_date = product_data.get("expiration_date", None)
+
+            if expiration_date:
+                expiration_timestamp = convert_date_to_timestamp(expiration_date)
+            else:
+                expiration_timestamp = None
 
             db_product = Product(
                 **{
@@ -54,11 +56,12 @@ class ProductRepository:
                     "url_route": url,
                     "price": product_data.get("price", None),
                     "stock_quantity": product_data.get("stock_quantity", None),
-                    "manufacturing_date": manufacturing_date,
+                    "manufacturing_date": manufacturing_timestamp,
                     "nutritional_info": product_data.get("nutritional_info", None),
-                    "expiration_date": expiration_date,
+                    "expiration_date": expiration_timestamp,
                     "certification": product_data.get("certification", None),
                     "views_count": product_data.get("views_count", None),
+                    "viewing_date": product_data.get("viewing_date", None),
                     "batch": batch_data,
                     "company": company_data,
                 }

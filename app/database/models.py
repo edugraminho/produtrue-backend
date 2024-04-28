@@ -3,7 +3,6 @@ from sqlalchemy import (
     Integer,
     String,
     ForeignKey,
-    DateTime,
     Numeric,
     JSON,
     Boolean,
@@ -36,8 +35,8 @@ class Batch(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(255), nullable=False)
     quantity = Column(Integer, nullable=False)
-    production_date = Column(DateTime, default=datetime.utcnow)
-    registration_date = Column(DateTime, default=datetime.utcnow)
+    production_date = Column(Integer)
+    registration_date = Column(Integer)
     level = Column(Integer)
     status = Column(Boolean, nullable=False)
     qrcode_settings = Column(JSON)
@@ -53,6 +52,7 @@ class Batch(Base):
         name,
         quantity,
         production_date,
+        registration_date,
         level,
         status,
         qrcode_settings,
@@ -63,7 +63,7 @@ class Batch(Base):
         self.name = name
         self.quantity = quantity
         self.production_date = production_date
-        self.registration_date = datetime.utcnow()
+        self.registration_date = registration_date
         self.level = level
         self.status = status
         self.qrcode_settings = qrcode_settings
@@ -83,10 +83,11 @@ class Product(Base):
     url_route = Column(String(255), unique=True)
     price = Column(Numeric(10, 2))
     stock_quantity = Column(Integer)
-    manufacturing_date = Column(DateTime)
-    expiration_date = Column(DateTime)
+    manufacturing_date = Column(Integer)
+    expiration_date = Column(Integer)
     certification = Column(String(100))
     views_count = Column(Integer)
+    viewing_date = Column(Integer)
     batch_id = Column(Integer, ForeignKey("batch.id"))
     company_id = Column(Integer, ForeignKey("company.id"))
     # supplier_id = Column(Integer, ForeignKey("supplier.id"))
@@ -111,6 +112,8 @@ class Product(Base):
         expiration_date,
         nutritional_info,
         certification,
+        views_count,
+        viewing_date,
         batch,
         company,
     ):
@@ -125,6 +128,8 @@ class Product(Base):
         self.expiration_date = expiration_date
         self.nutritional_info = nutritional_info
         self.certification = certification
+        self.views_count = views_count
+        self.viewing_date = viewing_date
         self.batch = batch
         self.company = company
 
