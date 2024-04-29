@@ -96,7 +96,7 @@ def post_product(product_data: dict, db: Session = Depends(get_db)):
             "price": 19.99,
             "stock_quantity": 100,
             "manufacturing_date": "2024-01-06T12:00:00",
-            "expiration_date": "2025-01-06T12:00:00",
+            "expiration_date": "",
             "nutritional_info": "Nutritional information",
             "certification": "Product certification",
             "views_count": 0,
